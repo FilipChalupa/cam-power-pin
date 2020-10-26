@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Cam Power Pin</title>
+		<style>
+			.container {
+				position: fixed;
+				top: 0;
+				left: 0;
+				width: 100vw;
+				height: 100vh;
+			}
+			.canvas {
+				background-image: url('https://pix10.agoda.net/hotelImages/4881503/0/e0fb489561013011b6857ad87cea0a70.jpg?s=1024x768');
+				background-size: cover;
+				background-position: center;
+				position: absolute;
+				top: 0;
+				left: 0;
+				right: 0;
+				bottom: 0;
+
+				transform-origin: 0 0;
+				border: 3px solid red;
+			}
+			.handle {
+				--handle-x: 0;
+				--handle-y: 0;
+				position: absolute;
+				top: 0;
+				left: 0;
+				border: none;
+				padding: 0;
+				background-color: transparent;
+				outline: none;
+				cursor: pointer;
+				transform: translate(var(--handle-x), var(--handle-y));
+			}
+			.handle::before,
+			.handle::after {
+				position: absolute;
+				top: 0;
+				left: 0;
+				content: '';
+				display: inline-block;
+				border-radius: 50%;
+				transform: translate(-50%, -50%);
+			}
+			.handle::before {
+				width: 20px;
+				height: 20px;
+				border: 2px solid red;
+			}
+			.handle::after {
+				content: '×';
+				font-size: 2em;
+				color: white;
+			}
+		</style>
+	</head>
+	<body>
+		Cam power pin
+		<div class="container">
+			<div class="canvas"></div>
+			<button type="button" class="handle"></button>
+			<button type="button" class="handle"></button>
+			<button type="button" class="handle"></button>
+			<button type="button" class="handle"></button>
+		</div>
+		<script>
+			const handles = document.querySelectorAll('.handle')
+
+			const initialOffset = 0 * 30
+			const anchors = [
+				{ x: initialOffset, y: initialOffset },
+				{ x: window.innerWidth - initialOffset, y: initialOffset },
+				{
+					x: window.innerWidth - initialOffset,
+					y: window.innerHeight - initialOffset,
+				},
+				{ x: initialOffset, y: window.innerHeight - initialOffset },
+			]
+
+			const setHandlePosition = (handle, position) => {
+				handle.style.setProperty('--handle-x', `${position.x}px`)
+				handle.style.setProperty('--handle-y', `${position.y}px`)
+			}
+			handles.forEach((handle, i) => setHandlePosition(handle, anchors[i]))
+
+			handles.forEach((handle, i) => {
+				const onDown = (event) => {
+					handle.addEventListener('pointermove', onMove, { passive: true })
+					handle.addEventListener('pointerup', onRelease, { passive: true })
+					handle.addEventListener('pointercancel', onRelease, { passive: true })
+					handle.setPointerCapture(event.pointerId)
+				}
+				const onMove = (event) => {
+					anchors[i] = { x: event.clientX, y: event.clientY }
+					setHandlePosition(handle, anchors[i])
+				}
+				const onRelease = (event) => {
+					handle.removeEventListener('pointermove', onMove, { passive: true })
+					handle.removeEventListener('pointerup', onRelease, { passive: true })
+					handle.removeEventListener('pointercancel', onRelease, {
+						passive: true,
+					})
+					handle.releasePointerCapture(event.pointerId)
+				}
+
+				handle.addEventListener('pointerdown', onDown, { passive: true })
+			})
+		</script>
+	</body>
+</html>
